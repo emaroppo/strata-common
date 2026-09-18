@@ -5,10 +5,13 @@ base install carries no dependency at all, and each module that needs one
 sits behind an extra, so a plugin resolver never pulls in a database
 driver.
 
+Not on PyPI: it installs from its repository at a release tag.
+
 ```bash
-uv add strata-common                  # canonical form, plugins, stages
-uv add "strata-common[migrations]"    # sqlalchemy, alembic
-uv add "strata-common[service]"       # uvicorn
+g=git+https://github.com/emaroppo
+uv add "strata-common @ $g/strata-common@v0.1.0"   # canonical form, plugins, stages
+uv add "strata-common[migrations] @ $g/strata-common@v0.1.0"   # sqlalchemy, alembic
+uv add "strata-common[service] @ $g/strata-common@v0.1.0"   # uvicorn
 ```
 
 ## What it holds
