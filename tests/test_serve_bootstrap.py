@@ -1,9 +1,10 @@
 """Starting from the environment, and refusing to start degraded."""
 
 import pytest
-import uvicorn
 
 from strata.common.service import serve
+
+uvicorn = pytest.importorskip("uvicorn", reason="needs the service extra")
 
 
 class Missing(Exception):
