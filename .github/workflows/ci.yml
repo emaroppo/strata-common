@@ -19,7 +19,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --no-cache --find-links dist --group dev --extra migrations --extra service
+      - run: uv sync --no-cache --group dev --extra migrations --extra service
       - run: uv run --no-sync ruff check .
       - run: uv run --no-sync ruff format --check .
 
@@ -30,7 +30,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --no-cache --find-links dist --group dev --extra migrations --extra service
+      - run: uv sync --no-cache --group dev --extra migrations --extra service
       - run: uv run --no-sync pytest -q
 
   pyright:
@@ -40,7 +40,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --no-cache --find-links dist --group dev --extra migrations --extra service
+      - run: uv sync --no-cache --group dev --extra migrations --extra service
       - run: uv run --no-sync pyright
 
   # What keeps the package publishable on its own: its wheel is built and
