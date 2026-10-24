@@ -9,6 +9,8 @@ import sys
 from collections.abc import Callable
 from typing import Any
 
+from .errors import SchemaOutOfDate
+
 #: Where a service listens: 0.0.0.0 unless set, and the port each
 #: consumer's own default. docs/adr/0019
 HOST_ENV = "STRATA_SERVE_HOST"
@@ -19,13 +21,15 @@ def serve(build: Callable[[], Any], *, prog: str, port: int, error: type[Excepti
     """Build the app, then serve it until stopped.
 
     ``error`` is what ``build`` raises when a setting it cannot start
-    without is absent; anything else is a bug and propagates as one.
+    without is absent. A store behind the code is refused the same way,
+    since a service that would misread it must not start either
+    (``docs/adr/0018``). Anything else is a bug and propagates as one.
     """
     import uvicorn  # pyright: ignore[reportMissingImports]  (the service extra)
 
     try:
         app = build()
-    except error as e:
+    except (error, SchemaOutOfDate) as e:
         print(f"{prog}: {e}", file=sys.stderr)
         raise SystemExit(2) from None
 

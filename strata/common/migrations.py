@@ -19,9 +19,7 @@ from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy.engine import Engine
 
-
-class SchemaOutOfDate(Exception):
-    """A database whose schema is not the one this code was written against."""
+from .errors import SchemaOutOfDate
 
 
 def script_directory(migrations: Path) -> ScriptDirectory:

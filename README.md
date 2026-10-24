@@ -21,6 +21,8 @@ uv add "strata-common[service] @ $g/strata-common@v0.1.0"   # uvicorn
 | `canonical` | one canonical JSON form for anything that gets hashed: `canonical_json`, `canonical_bytes`, `content_hash`, `short_hash`. One implementation, imported by `strata-post-process` and `strata-feature-store` too; `contract` ships the payload every consumer pins the digest of | none |
 | `plugins` | resolving a name through an entry-point group: `available`, `find`, `load`. Refuses an ambiguity rather than picking a winner, and reserves built-in names | none |
 | `stages` | `Stage(name, version, consumes, produces, run)`: the contract a pipeline stage meets, so an experiment file can sequence stages from several packages | none |
+| `cli` | what every command line shares: `emit` and `print_json` for a record, `run` and `exit_on` for turning a refusal into one line on stderr and exit 1 (`docs/adr/0030`) | none |
+| `errors` | `Refused`, a reason a command stopped that the user reads, and `SchemaOutOfDate`, a store behind the code; dependency-free so every command and service can catch them | none |
 | `database` | `engine(url)`: the one engine factory, with the SQLite pragmas every store wants | `migrations` |
 | `migrations` | the alembic plumbing a package's `strata-<name>-migrate` command runs: `require_current`, `stamp_if_new`, `migrate_main`, `run_alembic` | `migrations` |
 | `service` | `serve(build, prog, port, error)`: the bootstrap a package's HTTP service starts from | `service` |
