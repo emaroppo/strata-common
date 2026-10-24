@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 from importlib.metadata import EntryPoint
+from pathlib import Path
 
 import pytest
 
@@ -67,3 +68,23 @@ def test_load_checks_the_base_class():
 def test_an_import_failure_is_not_this_layers_to_explain():
     with pytest.raises(ImportError):
         load(_entry("gone", "definitely_not_installed:Thing"), Mapping, error=Refused)
+
+
+def test_anchor_leaves_names_and_module_paths_alone(tmp_path):
+    from strata.common.plugins import anchor
+
+    assert anchor("entities", tmp_path) == "entities"
+    assert anchor("pkg.mod:Task", tmp_path) == "pkg.mod:Task"
+
+
+def test_anchor_makes_a_file_reference_absolute_against_the_root(tmp_path):
+    from strata.common.plugins import anchor, anchor_all
+
+    assert anchor("tasks.py:Loud", tmp_path) == f"{(tmp_path / 'tasks.py').resolve()}:Loud"
+    assert anchor("tasks.py:Loud") == f"{Path('tasks.py').resolve()}:Loud"
+    nested = {"task": "tasks.py:Loud", "modes": ["modes.py:Leak", "missed"], "n": 2}
+    assert anchor_all(nested, tmp_path) == {
+        "task": f"{(tmp_path / 'tasks.py').resolve()}:Loud",
+        "modes": [f"{(tmp_path / 'modes.py').resolve()}:Leak", "missed"],
+        "n": 2,
+    }

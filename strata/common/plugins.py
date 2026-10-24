@@ -11,6 +11,8 @@ seam its tests already patch: an ``entries()`` returning what is installed.
 
 from collections.abc import Collection, Iterable
 from importlib.metadata import EntryPoint
+from pathlib import Path
+from typing import Any
 
 
 def available(entries: Iterable[EntryPoint]) -> dict[str, str]:
@@ -70,4 +72,35 @@ def _owner(entry: EntryPoint) -> str:
     return getattr(getattr(entry, "dist", None), "name", "?")
 
 
-__all__ = ["available", "find", "load"]
+def anchor(ref: str, root: Path | None = None) -> str:
+    """``ref`` with a ``file.py:Class`` target made absolute against ``root``.
+
+    A registry name or a ``pkg.mod:Class`` path needs no help and comes back
+    as it is. A file reference is anchored so it still resolves once written
+    into a request and read somewhere else; whoever keys on it makes it
+    relative again first. One implementation for models, tasks and failure
+    modes. See ``docs/adr/0005``.
+    """
+    if ":" not in ref:
+        return ref
+    target, name = ref.rsplit(":", 1)
+    if not target.endswith(".py"):
+        return ref
+    path = Path(target)
+    if not path.is_absolute() and root is not None:
+        path = Path(root) / path
+    return f"{path.resolve()}:{name}"
+
+
+def anchor_all(value: Any, root: Path | None = None) -> Any:
+    """``value`` with every ``file.py:Class`` string in it anchored, through dicts and lists."""
+    if isinstance(value, dict):
+        return {k: anchor_all(v, root) for k, v in value.items()}
+    if isinstance(value, list):
+        return [anchor_all(v, root) for v in value]
+    if isinstance(value, str) and ".py:" in value:
+        return anchor(value, root)
+    return value
+
+
+__all__ = ["anchor", "anchor_all", "available", "find", "load"]
