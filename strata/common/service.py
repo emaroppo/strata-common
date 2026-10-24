@@ -11,8 +11,7 @@ from typing import Any
 
 from .errors import SchemaOutOfDate
 
-#: Where a service listens: 0.0.0.0 unless set, and the port each
-#: consumer's own default. docs/adr/0019
+#: Where a service listens; the port defaults to each consumer's own. docs/adr/0019
 HOST_ENV = "STRATA_SERVE_HOST"
 PORT_ENV = "STRATA_SERVE_PORT"
 
@@ -20,10 +19,8 @@ PORT_ENV = "STRATA_SERVE_PORT"
 def serve(build: Callable[[], Any], *, prog: str, port: int, error: type[Exception]) -> None:
     """Build the app, then serve it until stopped.
 
-    ``error`` is what ``build`` raises when a setting it cannot start
-    without is absent. A store behind the code is refused the same way,
-    since a service that would misread it must not start either
-    (``docs/adr/0018``). Anything else is a bug and propagates as one.
+    ``error`` is what ``build`` raises when a setting it cannot start without is absent; a store
+    behind the code is refused the same way. See ``docs/adr/0018``.
     """
     import uvicorn  # pyright: ignore[reportMissingImports]  (the service extra)
 

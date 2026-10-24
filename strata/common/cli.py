@@ -1,11 +1,7 @@
 """The command line's shared pieces: rendering a record, and stopping on a refusal.
 
-Standard library only. A command builds a request, calls an operation and
-renders the record it returns, or prints the record whole as JSON on
-stdout and nothing else; a refusal is one line on stderr and exit status
-1, and anything not named is a crash and stays one. Every strata command
-reaches these through here, so they all read the same way. See
-``docs/adr/0030``.
+Standard library only. A record goes to stdout, rendered or whole as JSON; a refusal is one
+line on stderr and exit status 1; anything not named is a crash. See ``docs/adr/0030``.
 """
 
 import dataclasses
@@ -17,8 +13,7 @@ from typing import Any
 
 from .errors import Refused, SchemaOutOfDate
 
-#: What every command refuses on, whatever else it names: a refusal of its
-#: own, and a store behind the code (docs/adr/0018).
+#: What every command refuses on, whatever else it names. docs/adr/0018
 ALWAYS: tuple[type[Exception], ...] = (Refused, SchemaOutOfDate)
 
 
@@ -58,8 +53,7 @@ def refuse(error: BaseException) -> int:
 def run(command: Callable[[], int | None], *errors: type[Exception]) -> int:
     """Run a command's body: its status, or 1 and one line on stderr for a refusal.
 
-    For a ``main`` that returns its status. ``errors`` are the refusals the
-    command knows; :data:`ALWAYS` is added.
+    ``errors`` are the refusals the command knows beyond :data:`ALWAYS`.
     """
     try:
         return command() or 0
@@ -69,11 +63,7 @@ def run(command: Callable[[], int | None], *errors: type[Exception]) -> int:
 
 @contextmanager
 def exit_on(*errors: type[Exception]):
-    """Report a refusal and stop. For a command body that cannot return a status.
-
-    Raises :class:`SystemExit` with status 1, which a typer app and a plain
-    script both turn into the process's exit status.
-    """
+    """Report a refusal as :class:`SystemExit` 1, for a command body that cannot return a status."""
     try:
         yield
     except (*ALWAYS, *errors) as e:

@@ -17,3 +17,14 @@ def test_every_connection_gets_the_pragmas(tmp_path):
     for _ in range(2):
         with made.connect() as conn:
             assert conn.execute(text("PRAGMA synchronous")).scalar() == 1
+
+
+def test_sqlite_enforces_foreign_keys_unless_asked_not_to(tmp_path):
+    import sqlalchemy as sa
+
+    from strata.common.database import engine
+
+    for flag, expected in ((True, 1), (False, 0)):
+        made = engine(f"sqlite:///{tmp_path / f'fk{int(flag)}.db'}", foreign_keys=flag)
+        with made.connect() as conn:
+            assert conn.execute(sa.text("PRAGMA foreign_keys")).scalar() == expected

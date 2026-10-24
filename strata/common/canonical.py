@@ -1,14 +1,8 @@
-"""Canonical JSON, and the hash taken over it.
+"""Canonical JSON, and the hash taken over it: the one implementation.
 
-Every spec the orchestrator runs is identified by the hash of its canonical
-form (``docs/adr/0037``).
-
-Canonical means: sorted keys, no incidental whitespace, defaults already
-materialised by the caller, and a refusal for anything whose serialisation
-is not single-valued.
-
-The one implementation (``docs/adr/0017``). The payload every consumer pins
-the digest of is ``strata.common.contract``.
+Sorted keys, no incidental whitespace, defaults materialised by the caller, and a refusal for
+anything whose serialisation is not single-valued. The payload every consumer pins the digest
+of is :mod:`strata.common.contract`. See ``docs/adr/0017`` and ``docs/adr/0037``.
 """
 
 import hashlib
@@ -25,7 +19,7 @@ CANONICAL_VERSION = 1
 def to_jsonable(payload: Any) -> Any:
     """``payload`` reduced to what :func:`json.dumps` accepts, refusing the rest.
 
-    The refusals are the point. See ``docs/adr/0017``.
+    See ``docs/adr/0017``.
     """
     if isinstance(payload, dict):
         out = {}
@@ -64,8 +58,7 @@ def to_jsonable(payload: Any) -> Any:
         return to_jsonable(asdict(payload))
     dump = getattr(payload, "model_dump", None)
     if callable(dump):
-        # A pydantic model, without this package depending on pydantic:
-        # dumped in python mode so dates stay dates and are handled above.
+        # A pydantic model without depending on pydantic; python mode keeps dates as dates.
         return to_jsonable(dump(mode="python"))
     raise TypeError(f"no canonical form for {type(payload).__name__}")
 
@@ -94,8 +87,7 @@ def content_hash(payload: Any) -> str:
 def short_hash(payload: Any, length: int = 16) -> str:
     """A truncated :func:`content_hash`, for a directory name a person reads.
 
-    Refuses to go below eight characters: a short hash is for readability,
-    and one short enough to collide is not a saving.
+    Refuses fewer than eight characters.
     """
     if length < 8:
         raise ValueError(f"a {length}-character hash is short enough to collide; use 8 or more")
@@ -103,11 +95,7 @@ def short_hash(payload: Any, length: int = 16) -> str:
 
 
 def hash_file(path, chunk_size: int = 1 << 20) -> tuple[str, int]:
-    """The digest of a file's bytes, and how many there were.
-
-    The one hash over raw bytes rather than a canonical form. See
-    ``docs/adr/0017``.
-    """
+    """The digest of a file's bytes, and how many there were. See ``docs/adr/0017``."""
     digest = hashlib.sha256()
     size = 0
     with open(path, "rb") as handle:

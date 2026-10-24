@@ -1,12 +1,7 @@
-"""Resolving a name through an entry-point group.
+"""Resolving a name through an entry-point group, for sample types, preparers and models.
 
-For sample types, preparers and models: find the entries with that name,
-refuse a name registered twice, check that what loaded is the kind of
-thing asked for, and say what *is* installed when nothing matches. See
-``docs/adr/0033``.
-
-It takes the entries rather than the group, so a consumer keeps the one
-seam its tests already patch: an ``entries()`` returning what is installed.
+Takes the entries rather than the group, so a consumer keeps the one seam its tests patch.
+See ``docs/adr/0033``.
 """
 
 from collections.abc import Collection, Iterable
@@ -16,10 +11,7 @@ from typing import Any
 
 
 def available(entries: Iterable[EntryPoint]) -> dict[str, str]:
-    """Registered names, and what each resolves to.
-
-    Read from what is installed. See ``docs/adr/0034``.
-    """
+    """Registered names, and what each resolves to. See ``docs/adr/0034``."""
     return {entry.name: entry.value for entry in entries}
 
 
@@ -34,11 +26,9 @@ def find(
 ) -> EntryPoint:
     """The one entry ``name`` refers to, not yet loaded.
 
-    ``what`` names the kind of thing for the message ("preparer"), and
-    ``hint`` is appended when nothing matches, for a group with another
-    way to name things. A name in ``reserved`` belongs to the package
-    owning the group, and a plugin registering it is refused rather than
-    resolved by install order. See ``docs/adr/0033``.
+    ``what`` names the kind of thing for the message and ``hint`` is appended when nothing
+    matches; a name in ``reserved`` belongs to the owning package, and a plugin registering it is
+    refused. See ``docs/adr/0033``.
     """
     entries = list(entries)
     matches = [entry for entry in entries if entry.name == name]
@@ -59,8 +49,7 @@ def find(
 def load(entry: EntryPoint, base: type, *, error: type[Exception]) -> type:
     """What the entry names, checked to be a subclass of ``base``.
 
-    An import failure propagates as it is: what to say about one depends on
-    the group, and a caller with something to add wraps it.
+    An import failure propagates as it is; a caller with something to add wraps it.
     """
     loaded = entry.load()
     if not (isinstance(loaded, type) and issubclass(loaded, base)):
@@ -75,11 +64,7 @@ def _owner(entry: EntryPoint) -> str:
 def anchor(ref: str, root: Path | None = None) -> str:
     """``ref`` with a ``file.py:Class`` target made absolute against ``root``.
 
-    A registry name or a ``pkg.mod:Class`` path needs no help and comes back
-    as it is. A file reference is anchored so it still resolves once written
-    into a request and read somewhere else; whoever keys on it makes it
-    relative again first. One implementation for models, tasks and failure
-    modes. See ``docs/adr/0005``.
+    A registry name or a ``pkg.mod:Class`` path comes back as it is. See ``docs/adr/0005``.
     """
     if ":" not in ref:
         return ref

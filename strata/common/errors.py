@@ -1,11 +1,7 @@
 """The errors every strata command and service has to recognise.
 
-Dependency-free, so a command line or a service bootstrap can catch them
-without importing the module that raises them. :class:`SchemaOutOfDate` is
-raised by :mod:`strata.common.migrations`, which needs alembic;
-:class:`Refused` is what a command raises when it stops for a reason the
-user reads rather than a traceback. See ``docs/adr/0018`` and
-``docs/adr/0030``.
+Dependency-free, so a command line or a service bootstrap can catch them without importing
+the module that raises them. See ``docs/adr/0018`` and ``docs/adr/0030``.
 """
 
 

@@ -1,12 +1,7 @@
-"""What a stage declares about itself.
+"""What a stage declares about itself: a name, a version, and the kinds it consumes and produces.
 
-A stage is a function taking a request and a context and returning a
-record. This is the shape around it: a name a config can use, a version
-recorded beside the spec hash, and what kind of thing it consumes and
-produces, so a chain of stages can be checked before the first one runs.
-
-The kinds are opaque strings here. What they name is each package's
-business; this only has to be able to compare two of them.
+The kinds are opaque strings here; what they name is each package's business. See
+``docs/adr/0046`` and ``docs/adr/0037``.
 """
 
 from collections.abc import Callable
@@ -17,11 +12,9 @@ class Stage(NamedTuple):
     """One named, versioned operation, and the kinds it links."""
 
     name: str
-    #: Bumped when behaviour changes in a way that moves the result, and
-    #: recorded beside the spec hash. docs/adr/0037
+    #: Bumped when a change moves the result; recorded beside the spec hash. docs/adr/0037
     version: str
-    #: What it needs to have been produced before it runs. Empty for a stage
-    #: that starts from the catalog alone.
+    #: What must have been produced before it runs; empty for a stage starting from the catalog.
     consumes: tuple[str, ...]
     #: What it produces, for the next stage to consume.
     produces: str

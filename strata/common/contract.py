@@ -1,10 +1,7 @@
 """The payload every implementation of the canonical form hashes.
 
-One payload, checked in once, that exercises everything the rules have an
-opinion on: key order, nesting, list order, every scalar, a date and two
-datetimes (one on the second, one below it), an enum, a dataclass and an
-empty container. Each package that hashes anything pins the digest of
-this payload in its own tests. See ``docs/adr/0017``.
+One payload, checked in once, exercising everything the rules have an opinion on. Each package
+that hashes anything pins its digest in its own tests. See ``docs/adr/0017``.
 """
 
 from dataclasses import dataclass
